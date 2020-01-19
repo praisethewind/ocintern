@@ -18,13 +18,13 @@ loadPhrases();
 function loadPhrases() {
     loadJSON((response) => {
         phrases = JSON.parse(response);
-        //console.log(phrases);
         randomizeCards();
         putCardsInOrder();
         createCardButton();
     });
 }
 
+//Randomize three first elements in firts column, then randomize remaning elements.
 function randomizeCards() {
     let rndMsv = [];
     for (let i = 0; i < 3; i++) {
@@ -33,7 +33,6 @@ function randomizeCards() {
             rndCard = getRandomInteger(0, 20);
         createCard(0, phrases[rndCard].theme, phrases[rndCard].sourceText, rndCard);
         rndMsv[i] = rndCard;
-        //phrasesBuff = phrasesBuff.slice(0, rndCard).concat(phrasesBuff.slice(rndCard + 1));
     }
     for (let i = 0; i < 21; i++) {
         let rnd;
@@ -81,12 +80,16 @@ function createCard(position, phraseTitle, phraseText, number) {
     let cardElement = columns[position].appendChild(item);
     radnomColor = colors[getRandomInteger(0, 3)];
     cardElement.style.backgroundColor = radnomColor;
-    cardElement.addEventListener('click', () => {
+    createCardListeners(cardElement);
+}
+
+function createCardListeners(element) {
+    element.addEventListener('click', () => {
         if (isEditorOn)
             return;
-        let cardNumber = cardElement.childNodes[0].childNodes[5].value;
-        let isTranslatePressed = cardElement.childNodes[0].childNodes[7];
-        let textOfSelectedCard = cardElement.childNodes[0].childNodes[3];
+        let cardNumber = element.childNodes[0].childNodes[5].value;
+        let isTranslatePressed = element.childNodes[0].childNodes[7];
+        let textOfSelectedCard = element.childNodes[0].childNodes[3];
         if (isTranslatePressed.value == 'true') {
             clearTimeout(translateCardTimer);
             translateBack(cardNumber, textOfSelectedCard);
@@ -97,11 +100,11 @@ function createCard(position, phraseTitle, phraseText, number) {
         }
         //console.log(child.childNodes[0].childNodes[5].value);
     });
-    cardElement.addEventListener('dblclick', () => {
+    element.addEventListener('dblclick', () => {
         if (!isEditorOn)
             cardElement.remove();
     });
-    cardElement.childNodes[0].childNodes[9].addEventListener('click', () => {
+    element.childNodes[0].childNodes[9].addEventListener('click', () => {
         if (!isEditorOn)
             editCard(cardElement.childNodes[0]);
     });
@@ -121,7 +124,6 @@ function translateBack(cardNumber, textOfSelectedCard) {
 function loadJSON(callback) {
     let xobj = new XMLHttpRequest();
     xobj.overrideMimeType("application/json");
-    //xobj.open('GET', 'https://api.myjson.com/bins/1aekpe', true);
     xobj.open('GET', 'Phrases.json', true);
     xobj.onreadystatechange = () => {
         if (xobj.readyState == 4 && xobj.status == "200") {
@@ -135,7 +137,6 @@ function countWords(str) {
     return str.trim().split(/\s+/).length;
 }
 
-// Random int number generate
 function getRandomInteger(min, max) {
     let rand = min + Math.random() * (max + 1 - min);
     rand = Math.floor(rand);
@@ -179,27 +180,21 @@ function createCardButton() {
     let titleEditorInput = document.createElement('input');
     titleEditorInput.setAttribute('type', 'text');
     titleEditorInput.setAttribute('placeholder', 'Title');
-    titleEditorInput.style.width = '40%';
-    titleEditorInput.style.display = 'flex';
-    titleEditorInput.style.margin = '2px auto';
+    titleEditorInput.classList = 'create-card-input-text';
     let titleEditorInputElement = newCardButton.appendChild(titleEditorInput);
     let textEditorInput = document.createElement('input');
     textEditorInput.setAttribute('type', 'text');
     textEditorInput.setAttribute('placeholder', 'Text');
-    textEditorInput.style.width = '40%';
-    textEditorInput.style.display = 'flex';
-    textEditorInput.style.margin = '2px auto';
+    textEditorInput.classList = 'create-card-input-text';
     let textEditorInputElement = newCardButton.appendChild(textEditorInput);
     let translateEditorInput = document.createElement('input');
     translateEditorInput.setAttribute('type', 'text');
     translateEditorInput.setAttribute('placeholder', 'Translate');
-    translateEditorInput.style.width = '40%';
-    translateEditorInput.style.display = 'flex';
-    translateEditorInput.style.margin = '2px auto';
+    translateEditorInput.classList = 'create-card-input-text';
     let translateEditorInputElement = newCardButton.appendChild(translateEditorInput);
     let btn = document.createElement('input');
     btn.setAttribute('type', 'button');
-    btn.setAttribute('value', 'Create new button');
+    btn.setAttribute('value', 'Create new card');
     let btnElement = newCardButton.appendChild(btn);
     btnElement.addEventListener('click', () => {
         phrases.push({

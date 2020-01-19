@@ -83,3 +83,9 @@ body {
     width: 20px;
     height: 20px;
 }
+
+.create-card-input-text {
+    width: 40%;
+    display: flex;
+    margin: 2px auto;
+}
