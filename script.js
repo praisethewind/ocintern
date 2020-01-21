@@ -102,11 +102,11 @@ function createCardListeners(element) {
     });
     element.addEventListener('dblclick', () => {
         if (!isEditorOn)
-            cardElement.remove();
+        element.remove();
     });
     element.childNodes[0].childNodes[9].addEventListener('click', () => {
         if (!isEditorOn)
-            editCard(cardElement.childNodes[0]);
+            editCard(element.childNodes[0]);
     });
 }
 
