@@ -26,24 +26,49 @@ function loadPhrases() {
 
 //Randomize three first elements in firts column, then randomize remaning elements.
 function randomizeCards() {
-    let rndMsv = [];
-    for (let i = 0; i < 3; i++) {
-        let rndCard = getRandomInteger(0, 20);
-        while (rndCard == rndMsv[0] || rndCard == rndMsv[1])
-            rndCard = getRandomInteger(0, 20);
-        createCard(0, phrases[rndCard].theme, phrases[rndCard].sourceText, rndCard);
-        rndMsv[i] = rndCard;
+    let phrasesBuff = phrases.slice();
+    let leftCards = 20;
+    let counter = 3;
+    for (let i = 0; i <= leftCards;) {
+        let rndCard = getRandomInteger(0, leftCards);
+        if (counter == 0) {
+            let rndColumn;
+            if (columns[0].childNodes.length - 1 < 5) {
+                rndColumn = getRandomInteger(0, 2);
+            } else {
+                rndColumn = getRandomInteger(1, 2); 
+            }
+            console.log('Column: ', rndColumn, ' Card: ', rndCard, ' LeftCards: ', leftCards);
+            createCard(rndColumn, phrasesBuff[rndCard].theme, phrasesBuff[rndCard].sourceText, rndCard);
+        } else {
+            console.log('Column: ', 0, ' Card: ', rndCard, ' LeftCards: ', leftCards);
+            createCard(0, phrasesBuff[rndCard].theme, phrasesBuff[rndCard].sourceText, rndCard);
+            counter--;
+        }
+        phrasesBuff.splice(rndCard, 1);
+        leftCards--;
     }
-    for (let i = 0; i < 21; i++) {
-        let rnd;
-        if (i == rndMsv[0] || i == rndMsv[1] || i == rndMsv[2])
-            continue;
-        if (columns[0].childNodes.length - 1 < 5)
-            rnd = getRandomInteger(0, 2);
-        else
-            rnd = getRandomInteger(1, 2);
-        createCard(rnd, phrases[i].theme, phrases[i].sourceText, i);
-    }
+}
+
+function createCard(position, phraseTitle, phraseText, cardNumber) {
+    let itemView = `<div class="card disable-selection">
+            <div class="card-title">
+                ${phraseTitle}
+            </div>
+            <div>
+                ${phraseText}
+            </div>
+            <input type="hidden" value="${cardNumber}">
+            <input type="hidden" value="false">
+            <img src="img/edit-icon.png" class="edit-icon">
+        </div>`;
+    let item = document.createElement('div');
+    item.classList = 'item';
+    item.innerHTML = itemView;
+    let cardElement = columns[position].appendChild(item);
+    radnomColor = colors[getRandomInteger(0, 3)];
+    cardElement.style.backgroundColor = radnomColor;
+    createCardListeners(cardElement);
 }
 
 function putCardsInOrder() {
@@ -60,27 +85,6 @@ function putCardsInOrder() {
             columns[i].appendChild(toSort[j]);
         }
     }
-}
-
-function createCard(position, phraseTitle, phraseText, number) {
-    let itemView = `<div class="card disable-selection">
-            <div class="card-title">
-                ${phraseTitle}
-            </div>
-            <div>
-                ${phraseText}
-            </div>
-            <input type="hidden" value="${number}">
-            <input type="hidden" value="false">
-            <img src="img/edit-icon.png" class="edit-icon">
-        </div>`;
-    let item = document.createElement('div');
-    item.classList = 'item';
-    item.innerHTML = itemView;
-    let cardElement = columns[position].appendChild(item);
-    radnomColor = colors[getRandomInteger(0, 3)];
-    cardElement.style.backgroundColor = radnomColor;
-    createCardListeners(cardElement);
 }
 
 function createCardListeners(element) {
@@ -102,7 +106,7 @@ function createCardListeners(element) {
     });
     element.addEventListener('dblclick', () => {
         if (!isEditorOn)
-        element.remove();
+            element.remove();
     });
     element.childNodes[0].childNodes[9].addEventListener('click', () => {
         if (!isEditorOn)
@@ -147,16 +151,10 @@ function editCard(elem) {
     isEditorOn = true;
     let cardNumber = elem.childNodes[5].value;
     let textEditorInput = document.createElement('input');
-    textEditorInput.setAttribute('type', 'text');
-    textEditorInput.setAttribute('value', phrases[cardNumber].sourceText);
-    textEditorInput.setAttribute('placeholder', 'Text');
-    textEditorInput.style.width = '95%';
+    setEditAttributes(textEditorInput, cardNumber, 'Text');
     let textEditorInputElement = elem.appendChild(textEditorInput);
     let translateEditorInput = document.createElement('input');
-    translateEditorInput.setAttribute('type', 'text');
-    translateEditorInput.setAttribute('value', phrases[cardNumber].translation);
-    translateEditorInput.setAttribute('placeholder', 'Translate');
-    translateEditorInput.style.width = '95%';
+    setEditAttributes(translateEditorInput, cardNumber, 'Translate');
     let translateEditorInputElement = elem.appendChild(translateEditorInput);
     let textEditorButton = document.createElement('input');
     textEditorButton.setAttribute('type', 'button');
@@ -175,23 +173,28 @@ function editCard(elem) {
     });
 }
 
+function setEditAttributes(input, cardNumber, placeholder) {
+    input.setAttribute('type', 'text');
+    input.setAttribute('value', phrases[cardNumber].sourceText);
+    input.setAttribute('placeholder', placeholder);
+    input.style.width = '95%';
+}
+
 function createCardButton() {
     newCardButton.innerHTML = '';
+
     let titleEditorInput = document.createElement('input');
-    titleEditorInput.setAttribute('type', 'text');
-    titleEditorInput.setAttribute('placeholder', 'Title');
-    titleEditorInput.classList = 'create-card-input-text';
+    setCreateAttributes(titleEditorInput, 'Title');
     let titleEditorInputElement = newCardButton.appendChild(titleEditorInput);
+
     let textEditorInput = document.createElement('input');
-    textEditorInput.setAttribute('type', 'text');
-    textEditorInput.setAttribute('placeholder', 'Text');
-    textEditorInput.classList = 'create-card-input-text';
+    setCreateAttributes(textEditorInput, 'Text');
     let textEditorInputElement = newCardButton.appendChild(textEditorInput);
+
     let translateEditorInput = document.createElement('input');
-    translateEditorInput.setAttribute('type', 'text');
-    translateEditorInput.setAttribute('placeholder', 'Translate');
-    translateEditorInput.classList = 'create-card-input-text';
+    setCreateAttributes(translateEditorInput, 'Translate');
     let translateEditorInputElement = newCardButton.appendChild(translateEditorInput);
+
     let btn = document.createElement('input');
     btn.setAttribute('type', 'button');
     btn.setAttribute('value', 'Create new card');
@@ -208,4 +211,10 @@ function createCardButton() {
         textEditorInputElement.value = '';
         translateEditorInputElement.value = '';
     });
+}
+
+function setCreateAttributes(input, placeholder) {
+    input.setAttribute('type', 'text');
+    input.setAttribute('placeholder', placeholder);
+    input.classList = 'create-card-input-text';
 }
